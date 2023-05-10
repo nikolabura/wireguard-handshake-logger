@@ -1,0 +1,57 @@
+#include "wireguard/peer.h"
+
+// kprobe:wg_packet_send_handshake_response
+kprobe:wg_packet_send_keepalive {
+    $peer = (struct wg_peer *) arg0;
+
+    // Check if endpoint is IPv4 or IPv6
+    $addr_family = $peer->endpoint.addr.sa_family;
+    if ($addr_family == AF_INET) {
+        // IPv4 address
+        $ip = ntop(AF_INET, $peer->endpoint.addr4.sin_addr.s_addr);
+    } else if ($addr_family == AF_INET6) {
+        // IPv6 address (UNTESTED)
+        $ip = ntop(AF_INET6, $peer->endpoint.addr6.sin6_addr.in6_u.u6_addr8);
+    }
+
+    printf("Sent handshake response \t Interface: %s \t Endpoint IP: %s \t Pubkey: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x \n",
+        $peer->device->dev->name,
+        $ip,
+
+        $peer->handshake.remote_static[0],
+        $peer->handshake.remote_static[1],
+        $peer->handshake.remote_static[2],
+        $peer->handshake.remote_static[3],
+        $peer->handshake.remote_static[4],
+        $peer->handshake.remote_static[5],
+        $peer->handshake.remote_static[6],
+        $peer->handshake.remote_static[7],
+
+        $peer->handshake.remote_static[8],
+        $peer->handshake.remote_static[9],
+        $peer->handshake.remote_static[10],
+        $peer->handshake.remote_static[11],
+        $peer->handshake.remote_static[12],
+        $peer->handshake.remote_static[13],
+        $peer->handshake.remote_static[14],
+        $peer->handshake.remote_static[15],
+
+        $peer->handshake.remote_static[16],
+        $peer->handshake.remote_static[17],
+        $peer->handshake.remote_static[18],
+        $peer->handshake.remote_static[19],
+        $peer->handshake.remote_static[20],
+        $peer->handshake.remote_static[21],
+        $peer->handshake.remote_static[22],
+        $peer->handshake.remote_static[23],
+
+        $peer->handshake.remote_static[24],
+        $peer->handshake.remote_static[25],
+        $peer->handshake.remote_static[26],
+        $peer->handshake.remote_static[27],
+        $peer->handshake.remote_static[28],
+        $peer->handshake.remote_static[29],
+        $peer->handshake.remote_static[30],
+        $peer->handshake.remote_static[31]
+    );
+}
