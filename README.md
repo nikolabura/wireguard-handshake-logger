@@ -50,7 +50,7 @@ $
 
 The easiest way to install bpftrace is probably by just pulling the binary from their docker image, as specified in their install instructions.
 ```
-docker run -v $(pwd):/output quay.io/iovisor/bpftrace:master-vanilla_llvm_clang_glibc2.23  /bin/bash -c "cp /usr/bin/bpftrace /output"
+docker run --rm -v $(pwd):/output quay.io/iovisor/bpftrace:master-vanilla_llvm_clang_glibc2.23 /bin/bash -c "cp /usr/bin/bpftrace /output"
 ```
 
 If you do not have `bpftrace` on your path, but you do have it in the same folder as the script, it'll run it.
@@ -61,8 +61,32 @@ If you do not have `bpftrace` on your path, but you do have it in the same folde
 git clone https://github.com/nikolabura/wireguard-handshake-logger
 cd wireguard-handshake-logger
 ./wget-wireguard-headers.sh     # uses wget to download wireguard header files into a wireguard/ folder
-# make sure you either have bpftrace installed or a ./bpftrace binary in the same folder
+# now make sure you either have bpftrace installed or a ./bpftrace binary in the same folder
 sudo ./wireguard-handshake-logger.sh
 ```
 
 Ctrl+C the program when you're done.
+
+### As a systemd service
+
+This makes it log to journald. This is probably what you want.
+
+```ini
+[Unit]
+Description=Wireguard Handshake Logger
+After=network.target
+
+[Service]
+Type=simple
+User=root     # bpftrace will complain if it's not UID 0. CAP_BPF didn't seem to work.
+WorkingDirectory=/home/ubuntu/wireguard-handshake-logger                          # SET TO FULL PATH OF THE FOLDER
+ExecStart=/home/ubuntu/wireguard-handshake-logger/wireguard-handshake-logger.sh   # SET TO FULL PATH OF THE SCRIPT
+Restart=on-failure
+ProtectSystem=yes
+ProtectHome=read-only
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Disclaimer: I'm bad at systemd, but this does seem to work.
