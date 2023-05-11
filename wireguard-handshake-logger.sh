@@ -17,8 +17,8 @@ do
     IFS=$' '
     arr=($line)
     pubkey=$(echo ${arr[-1]} | xxd -r -p | base64)
-    echo -n "$line" | sed "s/Pubkey.*//"
-    echo Pubkey: $pubkey
+    left_part=$(echo -n "$line" | sed "s/Pubkey.*//")
+    echo "$left_part" Pubkey: $pubkey
 done < <($runcmd kprobe_wg_handshake.bt)
 
 echo Exiting Wireguard handshake logger.
