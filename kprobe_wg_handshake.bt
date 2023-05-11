@@ -1,7 +1,6 @@
 #include "wireguard/peer.h"
 
-// kprobe:wg_packet_send_handshake_response
-kprobe:wg_packet_send_keepalive {
+kprobe:wg_packet_send_handshake_response {
     $peer = (struct wg_peer *) arg0;
 
     // Check if endpoint is IPv4 or IPv6
