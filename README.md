@@ -1,5 +1,7 @@
-# Wireguard Handshake Logger
-Logs outgoing Wireguard handshake responses using `bpftrace` kprobes. Outputs the peer public key for each handshake, for use in monitoring multi-peer setups.
+# Wireguard Handshake Logger (Firezone branch)
+Logs outgoing Wireguard handshake responses using `bpftrace` kprobes. Outputs the peer public key for each handshake, for use in monitoring multi-peer setups. Uses the Firezone API to associate a user and device with each public key.
+
+If you don't run Firezone, see the `master` branch.
 
 **Skip to [Setup](#setup) for instructions.**
 
@@ -34,9 +36,9 @@ come from `peer->internal_id`, which doesn't appear to be exposed anywhere.
 $ sudo ./wireguard-handshake-logger.sh 
 bpftrace not on path. trying ./bpftrace
 Starting Wireguard handshake logger.
-Sent handshake response          Interface: wg0       Endpoint IP: 130.85.62.70       Pubkey: uH/67OxEOXOlceh1vnoLB30TJD6Ah2CYojo3mTOy8VI=
-Sent handshake response          Interface: wg0       Endpoint IP: 130.85.62.70       Pubkey: uH/67OxEOXOlceh1vnoLB30TJD6Ah2CYojo3mTOy8VI=
-Sent handshake response          Interface: wg0       Endpoint IP: 93.184.216.34      Pubkey: K9k7xmU+x0aEsZ0e3ebZDw2pwCzdNAoFSG+Wzwsx/HI=
+Sent handshake response      Interface: wg0     Endpoint IP: 130.85.62.70       Pubkey: uH/67OxEOXOlceh1vnoLB30TJD6Ah2CYojo3mTOy8VI=    Email: user1@example.com    Device: USER1_box
+Sent handshake response      Interface: wg0     Endpoint IP: 130.85.62.70       Pubkey: uH/67OxEOXOlceh1vnoLB30TJD6Ah2CYojo3mTOy8VI=    Email: user1@example.com    Device: USER1_box
+Sent handshake response      Interface: wg0     Endpoint IP: 93.184.216.34      Pubkey: K9k7xmU+x0aEsZ0e3ebZDw2pwCzdNAoFSG+Wzwsx/HI=    Email: user2@example.com    Device: USER2_laptop
 ^C
 $
 ```
@@ -47,6 +49,7 @@ $
 
 - bpftrace (tested with version v0.13.0, known to not work with version v0.9.4)
 - Linux kernel headers (`apt install linux-headers-generic` or such)
+- Firezone
 
 The easiest way to install bpftrace is probably by just pulling the binary from their docker image, as specified in their install instructions.
 ```
@@ -54,6 +57,10 @@ docker run --rm -v $(pwd):/output quay.io/iovisor/bpftrace:master-vanilla_llvm_c
 ```
 
 If you do not have `bpftrace` on your path, but you do have it in the same folder as the script, it'll run it.
+
+### Firezone API
+
+Get a Firezone API token, and put it in `token.txt`. Put the **root** URL of your Firezone server in `firezone_url.txt` (the script will append `/v0/devices` and `/v0/users` to this URL).
 
 ### Running
 
